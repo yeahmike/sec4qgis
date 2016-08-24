@@ -8,7 +8,7 @@ Functions related to Spanish Cadastral Electronic Site (SEC) for QGIS.
 
 --
 
-El complemento SEC4QGIS (SEC para QGIS) es una herramienta gratuita basada en software libre que permite importar a QGIS (que es un Sistema de Información Geográfica también gratuíto) la cartografía descargada desde la Sede Electrónica del Catastro (SEC) de España en múltiples formatos (FXCC de planta general, FXCC de parcela más colindantes, DXF de zona, y GML de parcela), para editarla de una forma gráfica conforme al trabajo de campo realizado por un técnico (o un particular), y exportar dicha cartografía editada a formato GML INSPIRE de parcela catastral para obtener su Informe de Validación Gráfica Alternativa (IVGA) en la SEC.
+El complemento SEC4QGIS (SEC para QGIS) es una herramienta gratuita basada en software libre que permite importar a QGIS (que es un Sistema de Información Geográfica, también gratuíto) la cartografía descargada desde la Sede Electrónica del Catastro (SEC) de España en múltiples formatos (FXCC de planta general, FXCC de parcela más colindantes, DXF de zona, y GML de parcela), para editarla de una forma gráfica conforme al trabajo de campo realizado por un técnico (o un particular), y exportar dicha cartografía editada a formato GML INSPIRE de parcela catastral para obtener su Informe de Validación Gráfica Alternativa (IVGA) en la SEC.
 
 Por favor, visite el [Wiki](https://github.com/yeahmike/sec4qgis/wiki) para obtener más información.
 
