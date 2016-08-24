@@ -1,0 +1,37 @@
+# This file contains metadata for your plugin. Since 
+# version 2.0 of QGIS this is the proper way to supply 
+# information about a plugin. The old method of 
+# embedding metadata in __init__.py will 
+# is no longer supported since version 2.0.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=SEC4QGIS
+qgisMinimumVersion=2.12
+description=Funciones relativas a la Sede Electrónica del Catastro (SEC) para QGIS.<br/><br/>Functions related to Spanish Cadastral Electronic Site (SEC) for QGIS.
+version=1.0.0
+author=Andrés V. O.
+email=andres@sec4qgis.tk
+about=El complemento SEC4QGIS (SEC para QGIS) es una herramienta gratuita basada en software libre que permite importar a QGIS la cartografía descargada de la Sede Electrónica del Catastro (SEC) de España en múltiples formatos (FXCC de planta general, FXCC de parcela más colindantes, DXF de zona, y GML de parcela), para editarla de una forma gráfica conforme al trabajo de campo realizado por un técnico (o un particular), y exportar dicha cartografía editada a formato GML INSPIRE de parcela catastral para obtener su Informe de Validación Gráfica Alternativa (IVGA) en la SEC. Por favor, consulte la ayuda y la página web del complemento para obtener más información.
+tracker=https://github.com/yeahmike/sec4qgis/issues
+repository=https://github.com/yeahmike/sec4qgis
+# End of mandatory metadata
+
+# Recommended items:
+
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=cartografía, catastro, SEC, IVGA, VGA, coordinación, registros, registradores, notarías, notarios, cartografía, importar, FXCC, DXF, GML, INSPIRE, exportar
+
+homepage=http://sec4qgis.tk
+category=Plugins
+icon=icon_sec4qgis.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
