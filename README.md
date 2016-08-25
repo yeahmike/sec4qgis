@@ -1,3 +1,5 @@
+![SEC4QGIS](https://raw.githubusercontent.com/yeahmike/sec4qgis/master/icon_sec4qgis.png)
+
 # SEC4QGIS
 ### (A QGIS plugin)
 --
