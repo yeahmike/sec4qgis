@@ -35,6 +35,7 @@ import codecs
 import re
 import zipfile
 import shutil
+import time
 from random import randint
 from import_cartography_dialog import ImportCartographyDialog
 ###########################################################################################################################
@@ -52,7 +53,7 @@ def run_script(self):
         project_file_name = QFileDialog.getSaveFileName(None, _translate("import_cartography", "Save project as"), last_folder_project, "*.qgs")
         if len(project_file_name)>0:
             last_folder_project = os.path.split(project_file_name)[0]
-            QSettings().setValue('SEC/last_folder_project', last_folder_project)
+            QSettings().setValue('SEC4QGIS/last_folder_project', last_folder_project)
             project_saved_ok = QgsProject.instance().write(QFileInfo(project_file_name))
         else:
             QMessageBox.warning(None, _translate("import_cartography", "WARNING"), _translate("import_cartography", "The project has not been saved, ")+_translate("import_cartography", "so you cannot to import the cartography.")) 
@@ -69,8 +70,18 @@ def run_script(self):
     project_file_info = QFileInfo(QgsProject.instance().fileName())
     project_file_name_without_extension = os.path.splitext(project_file_info.fileName())[0]
     directory_1 = project_file_info.absolutePath()+"/"+project_file_name_without_extension+"_CAPAS/"
+    if (os.path.exists(directory_1)) and (len(self.iface.legendInterface().layers()) == 0):
+        shutil.rmtree(directory_1, ignore_errors=True)
+        time.sleep(0.1)
     if not os.path.exists(directory_1):
-        os.makedirs(directory_1)
+        for loop_1 in range(1, 100):
+            try:
+                os.makedirs(directory_1)
+                break
+            except OSError:
+                time.sleep(0.1)
+        if not os.path.exists(directory_1):
+            self.show_and_log("EC", "ERROR: SIC-0903: "+_translate("import_cartography", "Could not create directory '")+directory_1+"'.")
     try:
         output_file = codecs.open(directory_1+"test_rw.txt", encoding='utf-8', mode='w')
     except IOError:
@@ -109,7 +120,8 @@ def run_script(self):
         self.import_cartography_dialog.comboBox_crs.setEnabled(True)
         self.import_cartography_dialog.radioButton_new_layer.setChecked(True)
         self.import_cartography_dialog.lineEdit_new_layer.setEnabled(True)
-        self.import_cartography_dialog.radioButton_existing_layers.setEnabled(False)
+        if (len(polygon_layers_list) == 0):
+            self.import_cartography_dialog.radioButton_existing_layers.setEnabled(False)
         self.import_cartography_dialog.comboBox_existing_layers.setEnabled(False)
     for valid_sec_crs in sorted(self.valid_sec_crs_list.keys()):
         self.import_cartography_dialog.comboBox_crs.addItem(valid_sec_crs+" = "+self.valid_sec_crs_list[valid_sec_crs])
@@ -191,7 +203,7 @@ def import_files(self, files_names_string, destination_layer, selected_crs, curr
 ###########################################################################################################################
 ###########################################################################################################################
 def import_zip(self, file_name, selected_crs, destination_layer):
-    unzip_directory = unzip_cartography (self, file_name)
+    unzip_directory = unzip_cartography(self, file_name)
     if unzip_directory == "":
         return 0
     number_of_parcels_imported = 0
@@ -587,7 +599,7 @@ def unzip_cartography (self, zip_file_name):
     year_1 = timestamp_unzip[:4]
     month_1 = timestamp_unzip[5:7]
     day_1 = timestamp_unzip[8:10]
-    base_directory_name = os.path.dirname(os.path.abspath(__file__))+"/tmp/"+year_1+"/"+month_1+"/"+day_1+"/"
+    base_directory_name = os.path.dirname(os.path.abspath(__file__))+"/tmp/"
     unzip_directory = base_directory_name+self.fix_characters(timestamp_unzip)+"/"
     if not os.path.exists(unzip_directory):
         os.makedirs(unzip_directory)

@@ -34,6 +34,7 @@ import codecs
 import re
 import subprocess
 import ConfigParser
+import shutil
 import import_cartography
 import export_gml
 import options
@@ -64,7 +65,7 @@ class Sec4Qgis:
                 ('EPSG:25829', self.tr('Western Spanish peninsula')), 
                 ('EPSG:25830', self.tr('Central Spanish peninsula, Ceuta, and Melilla')), 
                 ('EPSG:25831', self.tr('Eastern Spanish peninsula and Balearic Islands')), 
-                ('EPSG:32628', self.tr('Canary Islands'))
+                ('EPSG:32628', self.tr('Canary Islands')),
             ])
         self.field_localId = 'localId'
         self.field_nameSpace = 'nameSpace'
@@ -77,6 +78,8 @@ class Sec4Qgis:
         self.toolbar = self.iface.addToolBar('SEC4QGIS')
         self.toolbar.setObjectName('SEC4QGIS')
         self.set_global_options()
+        unzip_directory = os.path.dirname(os.path.abspath(__file__))+"/tmp/"
+        shutil.rmtree(unzip_directory, ignore_errors=True)
 ###########################################################################################################################
 ###########################################################################################################################
     def tr(self, text, disambiguate=None):
