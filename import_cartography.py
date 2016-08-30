@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-                                  SEC4QGIS
+                               SEC4QGIS v1.0.2
                              -------------------
                                (A QGIS plugin)
                              -------------------
@@ -169,15 +169,29 @@ def import_files(self, files_names_string, destination_layer, selected_crs, curr
             return
         file_extension = os.path.splitext(file_name)[1].upper()
         if file_extension == ".DXF":
-            number_of_parcels_imported += import_dxf(self, file_name, selected_crs, destination_layer)
+            import_result = import_dxf(self, file_name, selected_crs, destination_layer)
+            if import_result == -1:
+                number_of_parcels_imported = -1
+                break
+            number_of_parcels_imported += import_result
         elif file_extension in [".GML", ".SHP"]:
-            number_of_parcels_imported += import_gml_and_shp(self, file_name, selected_crs, destination_layer)
+            import_result = import_gml_and_shp(self, file_name, selected_crs, destination_layer)
+            if import_result == -1:
+                number_of_parcels_imported = -1
+                break
+            number_of_parcels_imported += import_result
         elif file_extension == ".ZIP":
-            number_of_parcels_imported += import_zip(self, file_name, selected_crs, destination_layer)
+            import_result = import_zip(self, file_name, selected_crs, destination_layer)
+            if import_result == -1:
+                number_of_parcels_imported = -1
+                break
+            number_of_parcels_imported += import_result
         else:
             self.show_and_log("EC", "SIC-0205: "+_translate("import_cartography", "File extension unknown '")+file_name+"'")
-            return
-    if number_of_parcels_imported == 0:
+            return 
+    if number_of_parcels_imported == -1:
+        return
+    elif number_of_parcels_imported == 0:
         self.show_and_log("EC", "SIC-0206: "+_translate("import_cartography", "The cartography has NOT been imported to layer '")+destination_layer.name()+_translate("import_cartography","'. No cadastral parcels have been created."), 10)
         return
     elif number_of_parcels_imported == 1:
@@ -205,7 +219,7 @@ def import_files(self, files_names_string, destination_layer, selected_crs, curr
 def import_zip(self, file_name, selected_crs, destination_layer):
     unzip_directory = unzip_cartography(self, file_name)
     if unzip_directory == "":
-        return 0
+        return -1
     number_of_parcels_imported = 0
     for root_1, dirs_names, files_names_list in os.walk(unzip_directory):
         for file_name in files_names_list:
@@ -224,7 +238,7 @@ def import_gml_and_shp(self, file_name, selected_crs, destination_layer):
     file_crs = ""
     if not source_layer.isValid():
         self.show_and_log("EC", "SIC-1001: "+_translate("import_cartography", "The file '")+file_name+_translate("import_cartography", "' has NOT been imported."), 10)
-        return 0
+        return -1
     self.iface.messageBar().clearWidgets()
     file_extension = (os.path.splitext(file_name)[1].upper())[1:]
     if file_extension == "GML":
@@ -240,7 +254,7 @@ def import_gml_and_shp(self, file_name, selected_crs, destination_layer):
         file_crs = source_layer.crs().authid()
     if selected_crs != file_crs:
         self.show_and_log("EC", "SIC-1002: "+_translate("import_cartography", "The CRS of the file '")+file_crs+_translate("import_cartography", "' does NOT match the CRS of destination layer '")+selected_crs+_translate("import_cartography", "'. File '")+file_name+_translate("import_cartography", "' has NOT been imported."), 10)
-        return 0
+        return -1
     start_time = datetime.datetime.now()
     number_of_parcels_imported = 0
     destination_parcel = QgsFeature()
@@ -278,14 +292,14 @@ def import_dxf(self, file_name, selected_crs, destination_layer):
     file_hash_127 = dxf_header_hash(self, file_name, 127)
     file_hash_009 = dxf_header_hash(self, file_name, 9)
     if file_hash_127 == -1:
-        return 0
+        return -1
     elif file_hash_127 == "305b2eb973210df65e34488b08cca09e0b39772c2bdf0bb35848bc35e6f4c103": 
         number_of_parcels_imported += import_dxf_sec_zone(self, file_name, selected_crs, destination_layer)
     elif file_hash_009 == "da1a135bf425e97b727b79f639d6d8a22a21e40e171f7785704fcf6cd4196a78": 
         number_of_parcels_imported += import_dxf_sec_parcel(self, file_name, selected_crs, destination_layer)
     else:
         self.show_and_log("EC", "SIC-0301: "+_translate("import_cartography", "File format unknown for '")+file_name+_translate("import_cartography", "'. No cadastral parcels have been created."))
-        return 0
+        return -1
     return number_of_parcels_imported
 ###########################################################################################################################
 ###########################################################################################################################
@@ -293,17 +307,17 @@ def import_dxf_sec_zone(self, file_name, selected_crs, destination_layer):
     layer_dxf_lines = QgsVectorLayer(file_name+"|layername=entities|geometrytype=LineString", "layer_dxf_lines", "ogr")
     if not layer_dxf_lines.isValid():
         self.show_and_log("EC", "SIC-0401: "+_translate("import_cartography", "Could NOT load the DXF lines layer from '")+file_name+"'.")
-        return 0
+        return -1
     layer_dxf_points = QgsVectorLayer(file_name+"|layername=entities|geometrytype=Point", "layer_dxf_points", "ogr")
     if not layer_dxf_points.isValid():
         self.show_and_log("EC", "SIC-0402: "+_translate("import_cartography", "Could NOT load the DXF points layer from '")+file_name+"'.")
-        return 0
+        return -1
     self.iface.messageBar().clearWidgets() 
     start_time = datetime.datetime.now()
     layer_dxf_polygon = QgsVectorLayer("MultiPolygon?crs="+selected_crs+"&field="+self.field_localId+":string(14)&field="+self.field_nameSpace+":string(11)", destination_layer.name()+"-DXFpoligonos", "memory")
     if not layer_dxf_polygon.isValid():
         self.show_and_log("EC", "SIC-0403: "+_translate("import_cartography", "Could NOT create the layer '")+destination_layer.name()+"-DXFpoligonos'")
-        return 0
+        return -1
     in_feat = QgsFeature()
     out_feat = QgsFeature()
     layer_dxf_polygon_provider = layer_dxf_polygon.dataProvider()
@@ -323,7 +337,7 @@ def import_dxf_sec_zone(self, file_name, selected_crs, destination_layer):
     layer_dxf_polygon_unique = QgsVectorLayer("MultiPolygon?crs="+selected_crs+"&field="+self.field_localId+":string(14)&field="+self.field_nameSpace+":string(11)", destination_layer.name()+"-DXFsinDup", "memory")
     if not layer_dxf_polygon_unique.isValid():
         self.show_and_log("EC", "SIC-0404: "+_translate("import_cartography", "Could NOT create the layer '")+destination_layer.name()+"-DXFsinDup'")
-        return 0
+        return -1
     for poligono_1 in layer_dxf_polygon.getFeatures():
         duplicated_1 = False
         for poligono_2 in layer_dxf_polygon.getFeatures():
@@ -337,7 +351,7 @@ def import_dxf_sec_zone(self, file_name, selected_crs, destination_layer):
     layer_dxf_polygon_holes = QgsVectorLayer("MultiPolygon?crs="+selected_crs+"&field="+self.field_localId+":string(14)&field="+self.field_nameSpace+":string(11)", destination_layer.name()+"-DXFhuecos", "memory")
     if not layer_dxf_polygon_holes.isValid():
         self.show_and_log("EC", "SIC-0405: "+_translate("import_cartography", "Could NOT create the layer '")+destination_layer.name()+"-DXFhuecos'")
-        return 0
+        return -1
     for parcel_1 in layer_dxf_polygon_unique.getFeatures():
         parcel_temp = QgsFeature()
         geometry_temp = QgsGeometry()
@@ -420,7 +434,7 @@ def import_dxf_sec_parcel(self, file_name, selected_crs, destination_layer):
     layer_dxf_polyline = QgsVectorLayer("MultiLineString?crs="+selected_crs+"&field="+self.field_localId+":string(14)&field="+self.field_nameSpace+":string(11)", destination_layer.name()+"-DXFpolilinea", "memory")
     if not layer_dxf_polyline.isValid():
         self.show_and_log("EC", "SIC-0501: "+_translate("import_cartography", "Could NOT create the layer '")+destination_layer.name()+"-DXFpolilinea'")
-        return 0
+        return -1
     lines_list=[]
     geometry_temp1 = QgsGeometry()
     object_temp1 = QgsFeature()
@@ -428,11 +442,11 @@ def import_dxf_sec_parcel(self, file_name, selected_crs, destination_layer):
         layer_dxf_lines = QgsVectorLayer(file_name+"|layername=entities|geometrytype=LineString", "layer_dxf_lines", "ogr")
         if not layer_dxf_lines.isValid():
             self.show_and_log("EC", "SIC-0502: "+_translate("import_cartography", "Could NOT load the DXF lines layer from '")+file_name+"'.")
-            return 0
+            return -1
         layer_dxf_points = QgsVectorLayer(file_name+"|layername=entities|geometrytype=Point", "layer_dxf_points", "ogr")
         if not layer_dxf_points.isValid():
             self.show_and_log("EC", "SIC-0503: "+_translate("import_cartography", "Could NOT load the DXF points layer from '")+file_name+"'.")
-            return 0
+            return -1
         self.iface.messageBar().clearWidgets() 
         for line_1 in layer_dxf_lines.getFeatures():
             if line_1['Layer'] == 'PG-LP':
@@ -445,7 +459,7 @@ def import_dxf_sec_parcel(self, file_name, selected_crs, destination_layer):
     layer_dxf_polygon = QgsVectorLayer("MultiPolygon?crs="+selected_crs+"&field="+self.field_localId+":string(14)&field="+self.field_nameSpace+":string(11)", destination_layer.name()+"-DXFpoligonos", "memory")
     if not layer_dxf_polyline.isValid():
         self.show_and_log("EC", "SIC-0504: "+_translate("import_cartography", "Could NOT create the layer '")+destination_layer.name()+"-DXFpoligonos'")
-        return 0
+        return -1
     lines_list = re.findall(r'\(([^\(\)]+)\)', geometry_temp1.exportToWkt()) 
     for line_1 in lines_list:
         line_coordinates_array = re.findall(r'^([^,]+?), ((.+), )*([^,]+)$', line_1)
@@ -459,7 +473,7 @@ def import_dxf_sec_parcel(self, file_name, selected_crs, destination_layer):
     layer_dxf_polygon_holes = QgsVectorLayer("MultiPolygon?crs="+selected_crs+"&field="+self.field_localId+":string(14)&field="+self.field_nameSpace+":string(11)", destination_layer.name()+"-DXFpoligonosHuecos", "memory")
     if not layer_dxf_polyline.isValid():
         self.show_and_log("EC", "SIC-0505: "+_translate("import_cartography", "Could NOT create the layer '")+destination_layer.name()+"-DXFpoligonosHuecos'")
-        return 0
+        return -1
     polygons_holes_list = []
     for parcel_1 in layer_dxf_polygon.getFeatures():
         parcel_temp = QgsFeature()

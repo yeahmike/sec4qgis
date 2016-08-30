@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-                                  SEC4QGIS
+                               SEC4QGIS v1.0.2
                              -------------------
                                (A QGIS plugin)
                              -------------------
@@ -104,8 +104,12 @@ def run_script(self):
             continue
         if (feature_1.fieldNameIndex(self.field_nameSpace) != -1) and (feature_1[self.field_nameSpace] != NULL):
             if self.valid_dgc_nameSpace_list[0].upper() == feature_1[self.field_nameSpace].upper():
-                if (feature_1.fieldNameIndex(self.field_localId) != -1) and (feature_1[self.field_localId] != NULL) and (feature_1[self.field_localId] != ''):
-                    if len(feature_1[self.field_localId]) != 14:
+                if (feature_1.fieldNameIndex(self.field_localId) != -1):
+                    if (feature_1[self.field_localId] != NULL) and (feature_1[self.field_localId] != ''):
+                        if len(feature_1[self.field_localId]) != 14:
+                            dgc_parcels_id_list.append(feature_1.id())
+                            invalid_dgc_parcels = True
+                    else:
                         dgc_parcels_id_list.append(feature_1.id())
                         invalid_dgc_parcels = True
     if invalid_dgc_parcels:
