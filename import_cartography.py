@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-                               SEC4QGIS v1.0.2
+                               SEC4QGIS v1.0.4
                              -------------------
                                (A QGIS plugin)
                              -------------------
@@ -242,8 +242,8 @@ def import_gml_and_shp(self, file_name, selected_crs, destination_layer):
     self.iface.messageBar().clearWidgets()
     file_extension = (os.path.splitext(file_name)[1].upper())[1:]
     if file_extension == "GML":
-        localId_file_field = 'inspireId_localId'
-        nameSpace_file_field = 'inspireId_namespace'
+        localId_file_field = ['inspireId_localId', 'localId']
+        nameSpace_file_field = ['inspireId_namespace', 'namespace']
         for line_1 in open(file_name):
             if "EPSG:" in line_1:
                 file_crs = "EPSG:"+re.findall(r'EPSG:+(\d+)', line_1)[0]
@@ -266,13 +266,20 @@ def import_gml_and_shp(self, file_name, selected_crs, destination_layer):
         destination_parcel.setGeometry(source_parcel.geometry())
         destination_parcel.initAttributes(2)
         if file_extension == "GML":
-            if source_parcel.fieldNameIndex(localId_file_field) != -1:
-                destination_parcel.setAttribute(0, source_parcel[localId_file_field])
-            if source_parcel.fieldNameIndex(nameSpace_file_field) != -1:
-                if source_parcel[nameSpace_file_field].upper() == "ES.SDGC.CP":
+            if source_parcel.fieldNameIndex(localId_file_field[0]) != -1:
+                destination_parcel.setAttribute(0, source_parcel[localId_file_field[0]])
+            elif source_parcel.fieldNameIndex(localId_file_field[1]) != -1:
+                destination_parcel.setAttribute(0, source_parcel[localId_file_field[1]])
+            if source_parcel.fieldNameIndex(nameSpace_file_field[0]) != -1:
+                if source_parcel[nameSpace_file_field[0]].upper() == "ES.SDGC.CP":
                     destination_parcel.setAttribute(1, self.valid_dgc_nameSpace_list[0])
                 else:
-                    destination_parcel.setAttribute(1, source_parcel[nameSpace_file_field])
+                    destination_parcel.setAttribute(1, source_parcel[nameSpace_file_field[0]])
+            elif source_parcel.fieldNameIndex(nameSpace_file_field[1]) != -1:
+                if source_parcel[nameSpace_file_field[1]].upper() == "ES.SDGC.CP":
+                    destination_parcel.setAttribute(1, self.valid_dgc_nameSpace_list[0])
+                else:
+                    destination_parcel.setAttribute(1, source_parcel[nameSpace_file_field[1]])
         elif file_extension == "SHP":
             if source_parcel.fieldNameIndex(localId_file_field) != -1:
                 destination_parcel.setAttribute(0, source_parcel[localId_file_field])

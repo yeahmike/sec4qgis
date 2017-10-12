@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-                               SEC4QGIS v1.0.2
+                               SEC4QGIS v1.0.4
                              -------------------
                                (A QGIS plugin)
                              -------------------
@@ -56,10 +56,18 @@ def run_script(self):
         return
     self.export_gml_dialog.comboBox_layers.addItems(layers_list)
     self.export_gml_dialog.comboBox_layers.setCurrentIndex(active_layer_index)
+    self.export_gml_dialog.comboBox_GMLversion.addItems([_translate("export_gml", "V3 (old format, backward compatible)"), _translate("export_gml", "V4 (new, better, recommended format)")])
+    if QSettings().value('SEC4QGIS/last_used_gml_version_export') is None:
+        export_gml_version_index = 1
+    else:
+        export_gml_version_index = QSettings().value('SEC4QGIS/last_used_gml_version_export')
+    self.export_gml_dialog.comboBox_GMLversion.setCurrentIndex(export_gml_version_index)
     self.export_gml_dialog.show()
     result = self.export_gml_dialog.exec_()
     if not result:
-        return 
+        return
+    QSettings().setValue('SEC4QGIS/last_used_gml_version_export', self.export_gml_dialog.comboBox_GMLversion.currentIndex())
+    export_gml_version_index = self.export_gml_dialog.comboBox_GMLversion.currentIndex()
     file_name = self.export_gml_dialog.lineEdit_ouput_file.text()
     only_selected_parcels = self.export_gml_dialog.checkBox_onlySelected.isChecked()
     selected_layer_index = self.export_gml_dialog.comboBox_layers.currentIndex()
@@ -171,8 +179,11 @@ def run_script(self):
     else:
         features_iterator_1 = layer_1.getFeatures()
     print >>output_file, '''<?xml version="1.0" encoding="utf-8"?>
-<!-- GML generado usando '''+self.plugin_name_and_version()+''' -->
-<gml:FeatureCollection gml:id="ES.SDGC.CP" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:cp="urn:x-inspire:specification:gmlas:CadastralParcels:3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:x-inspire:specification:gmlas:CadastralParcels:3.0 http://inspire.ec.europa.eu/schemas/cp/3.0/CadastralParcels.xsd">'''
+<!-- GML generado usando '''+self.plugin_name_and_version()+''' -->'''
+    if export_gml_version_index == 0:
+        print >>output_file, '''<gml:FeatureCollection gml:id="ES.SDGC.CP" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:cp="urn:x-inspire:specification:gmlas:CadastralParcels:3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:x-inspire:specification:gmlas:CadastralParcels:3.0 http://inspire.ec.europa.eu/schemas/cp/3.0/CadastralParcels.xsd">'''
+    elif export_gml_version_index == 1:
+        print >>output_file, '''<gml:FeatureCollection gml:id="ES.SDGC.CP" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:ogc="http://www.opengis.net/ogc" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:cp="http://inspire.ec.europa.eu/schemas/cp/4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://inspire.ec.europa.eu/schemas/cp/4.0 http://inspire.ec.europa.eu/schemas/cp/4.0/CadastralParcels.xsd">'''
     for feature_1 in features_iterator_1:
         timestamp_1 = datetime.datetime.now().isoformat()
         geometry_1=feature_1.geometry()
@@ -208,9 +219,12 @@ def run_script(self):
             exported_parcel_number += 1
             describe_multipolygon(feature_1, localId_1, nameSpace_1, crs_1, output_file)
         print >>output_file, '''                </gml:MultiSurface>
-            </cp:geometry>
-            <cp:inspireId xmlns:base="urn:x-inspire:specification:gmlas:BaseTypes:3.2">
-                <base:Identifier>
+            </cp:geometry>'''
+        if export_gml_version_index == 0:
+            print >>output_file, '            <cp:inspireId xmlns:base="urn:x-inspire:specification:gmlas:BaseTypes:3.2">'
+        elif export_gml_version_index == 1:
+            print >>output_file, '            <cp:inspireId xmlns:base="http://inspire.ec.europa.eu/schemas/base/3.3">'
+        print >>output_file, '''                <base:Identifier>
                     <base:localId>'''+localId_1+'''</base:localId>
                     <base:namespace>'''+nameSpace_1+'''</base:namespace>
                 </base:Identifier>
