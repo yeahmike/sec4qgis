@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-                               SEC4QGIS v1.0.4
+                               SEC4QGIS v1.0.5
                              -------------------
                                (A QGIS plugin)
                              -------------------
@@ -37,7 +37,7 @@ class ExportGmlDialog(QtGui.QDialog, FORM_CLASS):
         self.lineEdit_ouput_file.textChanged.connect(self.lineEdit_text_changed)
         self.pushButton_select.clicked.connect(self.file_select_export_gml)
     def lineEdit_text_changed(self, text):
-        if text:  
+        if text:
             self.pushButton_accept.setEnabled(True)
         else:
             self.pushButton_accept.setEnabled(False)
@@ -47,6 +47,9 @@ class ExportGmlDialog(QtGui.QDialog, FORM_CLASS):
         else:
             last_folder_export = QSettings().value('SEC4QGIS/last_folder_export')
         file_name = QFileDialog.getSaveFileName(self, _translate("export_gml", "Ouput GML file:"), last_folder_export, "*.gml")
+        if len(file_name)>0:
+            if file_name[-4:].upper() != ".GML":
+                file_name = file_name+".gml"
         self.lineEdit_ouput_file.setText(file_name)
         if len(file_name)>0:
             last_folder_export = os.path.split(file_name)[0]

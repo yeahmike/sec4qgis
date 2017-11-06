@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-                               SEC4QGIS v1.0.4
+                               SEC4QGIS v1.0.5
                              -------------------
                                (A QGIS plugin)
                              -------------------
@@ -50,7 +50,7 @@ class ImportCartographyDialog(QtGui.QDialog, FORM_CLASS):
             last_folder_import = ""
         else:
             last_folder_import = QSettings().value('SEC4QGIS/last_folder_import')
-        file_names = QFileDialog.getOpenFileNames(self, _translate("import_cartography", "File to import:"), last_folder_import, "*.dxf;*.gml;*.shp;*.zip")
+        file_names = QFileDialog.getOpenFileNames(self, _translate("import_cartography", "File to import:"), last_folder_import, "*.dxf *.gml *.shp *.zip")
         if len(file_names)>0:
             last_folder_import = os.path.split(file_names[0])[0]
             QSettings().setValue('SEC4QGIS/last_folder_import', last_folder_import)

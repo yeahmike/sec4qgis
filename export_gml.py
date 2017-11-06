@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-                               SEC4QGIS v1.0.4
+                               SEC4QGIS v1.0.5
                              -------------------
                                (A QGIS plugin)
                              -------------------
@@ -60,7 +60,7 @@ def run_script(self):
     if QSettings().value('SEC4QGIS/last_used_gml_version_export') is None:
         export_gml_version_index = 1
     else:
-        export_gml_version_index = QSettings().value('SEC4QGIS/last_used_gml_version_export')
+        export_gml_version_index = int(QSettings().value('SEC4QGIS/last_used_gml_version_export'))
     self.export_gml_dialog.comboBox_GMLversion.setCurrentIndex(export_gml_version_index)
     self.export_gml_dialog.show()
     result = self.export_gml_dialog.exec_()
@@ -69,6 +69,8 @@ def run_script(self):
     QSettings().setValue('SEC4QGIS/last_used_gml_version_export', self.export_gml_dialog.comboBox_GMLversion.currentIndex())
     export_gml_version_index = self.export_gml_dialog.comboBox_GMLversion.currentIndex()
     file_name = self.export_gml_dialog.lineEdit_ouput_file.text()
+    if file_name[-4:].upper() != ".GML":
+        file_name = file_name+".gml"
     only_selected_parcels = self.export_gml_dialog.checkBox_onlySelected.isChecked()
     selected_layer_index = self.export_gml_dialog.comboBox_layers.currentIndex()
     selected_layer = polygon_layers[selected_layer_index]

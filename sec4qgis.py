@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-                               SEC4QGIS v1.0.4
+                               SEC4QGIS v1.0.5
                              -------------------
                                (A QGIS plugin)
                              -------------------
@@ -201,6 +201,7 @@ class Sec4Qgis:
     def help_main(self):
         if QSettings().value('locale/userLocale')[0:2].upper() != "ES":
             QMessageBox.warning(None, self.tr("WARNING"), self.tr("This plugin is designed to work with the Spanish Cadastral Electronic Site (SEC), so it's expected to be used almost exclusively by Spanish citizens. That's why, by the moment, the user guide is written in Spanish only.<br/><br/>Sorry for any inconvenience this may cause you.")) 
+        subprocess.Popen("xdg-open "+os.path.split(os.path.abspath(__file__))[0]+"/help/ayuda.pdf", shell=True)
         subprocess.Popen(os.path.split(os.path.abspath(__file__))[0]+"/help/ayuda.pdf", shell=True)
 ###########################################################################################################################
 ###########################################################################################################################

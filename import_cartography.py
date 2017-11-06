@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
-                               SEC4QGIS v1.0.4
+                               SEC4QGIS v1.0.5
                              -------------------
                                (A QGIS plugin)
                              -------------------
@@ -52,6 +52,8 @@ def run_script(self):
         QMessageBox.warning(None, _translate("import_cartography", "WARNING"), _translate("import_cartography", "<b>You have to save your project before importing any cartography.</b><br/><br/>Please, select the name and path for your project on the next window.")) 
         project_file_name = QFileDialog.getSaveFileName(None, _translate("import_cartography", "Save project as"), last_folder_project, "*.qgs")
         if len(project_file_name)>0:
+            if project_file_name[-4:].upper() != ".QGS":
+                project_file_name = project_file_name+".qgs"
             last_folder_project = os.path.split(project_file_name)[0]
             QSettings().setValue('SEC4QGIS/last_folder_project', last_folder_project)
             project_saved_ok = QgsProject.instance().write(QFileInfo(project_file_name))
@@ -548,7 +550,7 @@ def get_map_layer_by_name(layer_name):
 ###########################################################################################################################
 def dxf_header_hash(self, file_name, lines_number=127):
     try:
-        file_1 = open(file_name, "r")
+        file_1 = open(file_name, "rU")
     except IOError:
         self.show_and_log("EC", "SIC-0601: "+_translate("import_cartography", "Error opening file '")+file_name+"'.", 10)
         return -1
@@ -620,8 +622,8 @@ def unzip_cartography (self, zip_file_name):
     year_1 = timestamp_unzip[:4]
     month_1 = timestamp_unzip[5:7]
     day_1 = timestamp_unzip[8:10]
-    base_directory_name = os.path.dirname(os.path.abspath(__file__))+"/tmp/"
-    unzip_directory = base_directory_name+self.fix_characters(timestamp_unzip)+"/"
+    base_directory_name_1 = os.path.dirname(os.path.abspath(__file__))+"/tmp/"
+    unzip_directory = base_directory_name_1+self.fix_characters(timestamp_unzip)+"/"
     if not os.path.exists(unzip_directory):
         os.makedirs(unzip_directory)
     try:
@@ -635,7 +637,7 @@ def unzip_cartography (self, zip_file_name):
     zip_info = zip_file.infolist()
     for zip_object in zip_info:
         source_name = unzip_directory+zip_object.filename
-        (base_directory_name, file_1) = os.path.split(source_name)
+        (base_directory_name_1, file_1) = os.path.split(source_name)
         extension_1 = os.path.splitext(file_1)[1].upper()
         try:
             zip_file.extract(zip_object, unzip_directory)
@@ -647,9 +649,13 @@ def unzip_cartography (self, zip_file_name):
         extracted_files_number += 1
         for loop_1 in range(1,9999):
             suffix_1 = "_Fragment%04d" % loop_1
-            destination_name = unzip_directory+file_1[:-4]+suffix_1+extension_1
-            if not os.path.exists(destination_name):
+            destination_name = unzip_directory+file_1[:-4].replace("\\", "/")+suffix_1+extension_1
+            (base_directory_name_2, file_2) = os.path.split(destination_name)
+            if not os.path.exists(base_directory_name_2):
+                os.makedirs(base_directory_name_2)
+            if not os.path.exists(unzip_directory+file_2):
                 shutil.move(source_name, destination_name)
+                shutil.move(destination_name, unzip_directory+file_2)
                 break
     return unzip_directory
 ###########################################################################################################################
