@@ -14,6 +14,9 @@ El complemento SEC4QGIS (SEC para QGIS) es una herramienta gratuita basada en so
 
 Por favor, visite el [Wiki](https://github.com/yeahmike/sec4qgis/wiki) para obtener más información.
 
+The SEC4QGIS plugin (SEC for QGIS) is a free tool based on free software that lets you import spatial data downloaded from the Spanish Electronic Cadastre Office (SEC) into QGIS (a free Geographic Information system) in various formats (FXCC for general plans, FXCC for adjacent parcels, DXF for zones and GML for parcels) so that you can edit it to conform with fieldwork done by a technician (or private individual) and export it in INSPIRE GML cadastral parcel format so that you can obtain a SEC IVGA (Alternative Graphic Validation Report).
+
+Please see the [Wiki](https://github.com/yeahmike/sec4qgis/wiki) for more information (in Spanish only).
 --
 
 begin                : 2016-06-30
