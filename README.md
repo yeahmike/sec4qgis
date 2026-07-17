@@ -20,7 +20,7 @@ begin                : 2016-06-30
 
 copyright            : (C) 2016 by Andrés V. O.
 
-website              : http://sec4qgis.tk
+website              : https://sec4qgis.x10host.com
 
 --
 
